@@ -5,24 +5,24 @@ module.exports = {
         const { page = 1, ong_id } = request.query;
 
         const [count] = await database('incidents').count();
+        let incidents = [];
 
-        const incidents = await database('incidents')
-            .join('ongs', 'ongs.id', '=', 'incidents.ong_id')
-            .where((qb) => {
-                if (ong_id) {
-                    qb.where('incidents.ong_id', ong_id);
-                }
-            })
-            .limit(5)
-            .offset((page - 1) * 5)
-            .select([
-                'incidents.*',
-                'ongs.name',
-                'ongs.email',
-                'ongs.whatsapp',
-                'ongs.city',
-                'ongs.uf'
-            ]);
+        if (ong_id) {
+            incidents = await database('incidents').where('ong_id', ong_id).select('*');
+        } else {
+            incidents = await database('incidents')
+                .join('ongs', 'ongs.id', '=', 'incidents.ong_id')
+                .limit(5)
+                .offset((page - 1) * 5)
+                .select([
+                    'incidents.*',
+                    'ongs.name',
+                    'ongs.email',
+                    'ongs.whatsapp',
+                    'ongs.city',
+                    'ongs.uf'
+                ]);
+        }
 
         response.header('X-Total-Count', count['count(*)']);
 
@@ -57,7 +57,7 @@ module.exports = {
             return response.status(401).send();
         }
 
-        await connection('incidents').where('id', id).delete();
+        await database('incidents').where('id', id).delete();
 
         return response.status(200).send();
     }
