@@ -1,13 +1,18 @@
-const connection = require('../database/connection');
+const database = require('../database/database');
 
 module.exports = {
     async index(request, response) {
-        const { page = 1 } = request.query;
+        const { page = 1, ong_id } = request.query;
 
-        const [count] = await connection('incidents').count();
+        const [count] = await database('incidents').count();
 
-        const incidents = await connection('incidents')
+        const incidents = await database('incidents')
             .join('ongs', 'ongs.id', '=', 'incidents.ong_id')
+            .where((qb) => {
+                if (ong_id) {
+                    qb.where('incidents.ong_id', ong_id);
+                }
+            })
             .limit(5)
             .offset((page - 1) * 5)
             .select([
@@ -28,7 +33,7 @@ module.exports = {
         const {title, description, value} = request.body;
         const ong_id = request.headers.authorization;
 
-        const [id] = await connection('incidents').insert({
+        const [id] = await database('incidents').insert({
             title,
             description,
             value,
@@ -42,7 +47,7 @@ module.exports = {
         const {id} = request.params;
         const ong_id = request.headers.authorization;
 
-        const incident = await connection('incidents').where('id', id).select('ong_id').first();
+        const incident = await database('incidents').where('id', id).select('ong_id').first();
 
         if (incident === undefined) {
             return response.status(404).send();

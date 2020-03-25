@@ -1,4 +1,4 @@
-const connection = require('../database/connection');
+const database = require('../database/database');
 
 module.exports = {
     async create(request, response) {
@@ -8,7 +8,7 @@ module.exports = {
             return response.status(400).send();
         }
 
-        const ong = await connection('ongs').where('id', id).select('name').first();
+        const ong = await database('ongs').where('id', id).select('name').first();
 
         if (!ong) {
             return response.status(400).send();
