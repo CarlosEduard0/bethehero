@@ -28,7 +28,8 @@ routes.post('/ongs', celebrate({
 
 routes.get('/incidents', celebrate({
     [Segments.QUERY]: Joi.object().keys({
-        page: Joi.number()
+        page: Joi.number(),
+        ong_id: Joi.string()
     })
 }), IncidentController.index);
 
