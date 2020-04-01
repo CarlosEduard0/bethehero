@@ -21,7 +21,12 @@ jobs:
       run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
     - name: Build Be The Hero API
-      run: docker build ./backend -t carloseduard0/bethehero-api
+      run: docker build -t carloseduard0/bethehero-api ./backend
+      
+    - name: Build Be The Hero Frontend
+      run: docker build --build-arg APP_API_URL=http://localhost.local/api -t carloseduard0/bethehero-frontend ./frontend
       
     - name: Docker push
-      run: docker push carloseduard0/bethehero-api
+      run: |
+        docker push carloseduard0/bethehero-api
+        docker push carloseduard0/bethehero-frontend
