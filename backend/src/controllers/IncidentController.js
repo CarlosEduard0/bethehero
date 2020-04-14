@@ -33,12 +33,18 @@ module.exports = {
         const {title, description, value} = request.body;
         const ong_id = request.headers.authorization;
 
+        const ong = await database('ongs').where('id', ong_id).first('*');
+
+        if (!ong) {
+            return response.status(401).send();
+        }
+
         const [id] = await database('incidents').insert({
             title,
             description,
             value,
             ong_id
-        });
+        }).returning('id');
 
         return response.json({id});
     },
